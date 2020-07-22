@@ -1,78 +1,64 @@
-import React, { useState } from "react";
+import React, { Component, useState } from "react";
 import { BrowserRouter, Route, Switch, Prompt } from "react-router-dom";
-
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
 
 import Home from "./pages/Home";
 import Page1 from "./pages/Page1";
 import Page2 from "./pages/Page2";
+import Confirm from "./_components/Confirm";
 
-function App() {
-  console.log("Rendering App");
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-  const [confirm, setConfirm] = useState(false);
-  const [confirmCallback, setConfirmCallback] = useState(null);
-
-  const [show, setShow] = useState(true);
-  const handleClose = () => setShow(false);
-
-  function getConfirmation(message, callback) {
-    console.log("Inside getConfirmation");
-    setConfirmCallback(() => callback);
-    setConfirm(true);
+    this.state = {
+      confirm: false,
+      confirmCallback: null,
+      showModal: true
+    };
   }
 
-  return (
-    <BrowserRouter getUserConfirmation={getConfirmation}>
-      <AllRoutes />
-      {confirm && (
-        <Confirm confirmCallback={confirmCallback} setConfirm={setConfirm} />
-      )}
-    </BrowserRouter>
-  );
+  setConfirm = (val) => {
+    this.setState({
+      confirm: val
+    });
+  };
 
-  function Confirm(props) {
-    console.log("Rendering Confirm");
+  setConfirmCallback = (val) => {
+    this.setState({
+      confirmCallback: val
+    });
+  };
 
-    function allowTransition() {
-      props.setConfirm(false);
-      props.confirmCallback(true);
-    }
+  setShow = () => {
+    this.setState({
+      showModal: true
+    });
+  };
 
-    function blockTransition() {
-      props.setConfirm(false);
-      props.confirmCallback(false);
-    }
+  handleClose = () => {
+    this.setState({
+      showModal: false
+    });
+  };
 
-    return (
-      <React.Fragment>
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Body>
-            <p>Are you sure?</p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={allowTransition}>Yes</Button>
-            <Button onClick={blockTransition}>No</Button>
-          </Modal.Footer>
-        </Modal>
-      </React.Fragment>
-    );
-  }
+  getConfirmation = (message, callback) => {
+    this.setState({
+      confirmCallback: callback,
+      confirm: true
+    });
+  };
 
-  function AllRoutes(props) {
-    console.log("Rendering AllRoutes...");
+  AllRoutes = (props) => {
     return (
       <Switch>
         <Route exact path="/" component={Home} />
-        <Route path="/1" component={Component1} />
-        <Route path="/2" component={Component2} />
+        <Route path="/1" component={this.Component1} />
+        <Route path="/2" component={this.Component2} />
       </Switch>
     );
-  }
+  };
 
-  function Component1(props) {
-    console.log("Rendering Component1...");
+  Component1 = (props) => {
     const [isBlocking, setIsBlocking] = useState(true);
 
     return (
@@ -86,10 +72,9 @@ function App() {
         <Page1 />
       </React.Fragment>
     );
-  }
+  };
 
-  function Component2(props) {
-    console.log("Rendering Component1...");
+  Component2 = (props) => {
     const [isBlocking, setIsBlocking] = useState(true);
 
     return (
@@ -102,6 +87,22 @@ function App() {
         />
         <Page2 />
       </React.Fragment>
+    );
+  };
+
+  render() {
+    return (
+      <BrowserRouter getUserConfirmation={this.getConfirmation}>
+        <this.AllRoutes />
+        {this.state.confirm && (
+          <Confirm
+            confirmCallback={this.state.confirmCallback}
+            setConfirm={this.setConfirm}
+            handleClose={this.handleClose}
+            show={this.state.showModal}
+          />
+        )}
+      </BrowserRouter>
     );
   }
 }
